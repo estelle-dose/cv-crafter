@@ -21,27 +21,21 @@ try {
     // langue
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // ...
-    
-        // Ajouter une langue
         if (isset($_POST["ajouter_langue"])) {
             // Récupérez les données du formulaire de langue
             $nom_langue = $_POST["nom_langue"];
-            $niveau_langue = $_POST["niveau_langue"];
-    
+            $niveau_langue = $_POST["niveau_langue"]; // Récupérez la valeur sélectionnée
+
             // Insérez les données dans la table "langue"
             $insertQuery = "INSERT INTO langue (utilisateurs_id, nom, niveau) VALUES (?, ?, ?)";
             $insertStmt = $conn->prepare($insertQuery);
             $insertStmt->execute([$_SESSION["id"], $nom_langue, $niveau_langue]);
-    
+
             // Redirigez l'utilisateur vers la page "profil.php" après l'ajout
             header("Location: profil.php");
             exit;
         }
-    
-        // ...
     }
-    
 
     // expérience
 
@@ -87,24 +81,25 @@ try {
             exit;
         }
 
-        // Competence
+        // compétence
 
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (isset($_POST["ajouter_competence"])) {
                 // Récupérez les données du formulaire de compétence
                 $nom_competence = $_POST["nom_competence"];
-                $niveau_competence = $_POST["niveau_competence"];
-        
+                $niveau_competence = $_POST["niveau_competence"]; // Récupérez la valeur sélectionnée
+
                 // Insérez les données dans la table "competence"
                 $insertQuery = "INSERT INTO competence (utilisateurs_id, nom, niveau) VALUES (?, ?, ?)";
                 $insertStmt = $conn->prepare($insertQuery);
                 $insertStmt->execute([$_SESSION["id"], $nom_competence, $niveau_competence]);
-        
+
                 // Redirigez l'utilisateur vers la page "profil.php" après l'ajout
                 header("Location: profil.php");
                 exit;
             }
         }
+
         
         //Interet
 
@@ -126,7 +121,7 @@ try {
         
         // utilisateur
         
-        else {
+        if (isset($_POST["enregistrer_modifications"])) {
             // Récupérer les nouvelles données du formulaire de profil
             $newLogin = $_POST["login"];
             $newPrenom = $_POST["prenom"];
@@ -253,7 +248,7 @@ if (isset($_GET["logout"])) {
 
         <br>
         
-        <input type="submit" value="Enregistrer les modifications">
+        <input type="submit" name="enregistrer_modifications" value="Enregistrer les modifications">
     </form>
 
         <!-- expérience -->
@@ -281,23 +276,52 @@ if (isset($_GET["logout"])) {
         </form>
         
         <h2>Expériences</h2>
-        <ul>
-            <?php
-            // Sélectionnez les expériences de l'utilisateur connecté depuis la base de données
-            $experiencesQuery = "SELECT poste, employeur, ville, date_start, date_end, description FROM experience WHERE utilisateurs_id = ?";
-            $experiencesStmt = $conn->prepare($experiencesQuery);
-            $experiencesStmt->execute([$_SESSION["id"]]);
-            $experiences = $experiencesStmt->fetchAll(PDO::FETCH_ASSOC);
+<ul>
+    <?php
+    // Sélectionnez les expériences de l'utilisateur connecté depuis la base de données
+    $experiencesQuery = "SELECT id, poste, employeur, ville, date_start, date_end, description FROM experience WHERE utilisateurs_id = ?";
+    $experiencesStmt = $conn->prepare($experiencesQuery);
+    $experiencesStmt->execute([$_SESSION["id"]]);
+    $experiences = $experiencesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            foreach ($experiences as $experience) {
-                echo "<li><strong>" . $experience["poste"] . "</strong> chez " . $experience["employeur"] . "<br>";
-                echo "Ville : " . $experience["ville"] . "<br>";
-                echo "Date de début : " . $experience["date_start"] . "<br>";
-                echo "Date de fin : " . $experience["date_end"] . "<br>";
-                echo "Description : " . $experience["description"] . "</li><br>";
-            }
-            ?>
-        </ul>
+    foreach ($experiences as $experience) {
+        echo "<li><strong>" . $experience["poste"] . "</strong> chez " . $experience["employeur"] . "<br>";
+        echo "Ville : " . $experience["ville"] . "<br>";
+        echo "Date de début : " . $experience["date_start"] . "<br>";
+        echo "Date de fin : " . $experience["date_end"] . "<br>";
+        echo "Description : " . $experience["description"] . "<br>";
+
+        // Bouton "Modifier" pour afficher le formulaire de mise à jour
+        echo '<button onclick="toggleUpdateForm(' . $experience["id"] . ')">Modifier</button>';
+
+        echo "</li><br>";
+
+        // Formulaire de mise à jour caché
+        echo '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '" style="display: none;" id="updateForm' . $experience["id"] . '">';
+        echo '<input type="hidden" name="experience_id" value="' . $experience["id"] . '">';
+        echo '<label for="poste">Poste:</label>';
+        echo '<input type="text" id="poste" name="poste" value="' . $experience["poste"] . '" required><br>';
+
+        echo '<label for="employeur">Employeur:</label>';
+        echo '<input type="text" id="employeur" name="employeur" value="' . $experience["employeur"] . '" required><br>';
+
+        echo '<label for="ville_experience">Ville:</label>';
+        echo '<input type="text" id="ville_experience" name="ville_experience" value="' . $experience["ville"] . '" required><br>';
+
+        echo '<label for="date_start_experience">Date de début:</label>';
+        echo '<input type="date" id="date_start_experience" name="date_start_experience" value="' . $experience["date_start"] . '" required><br>';
+
+        echo '<label for="date_end_experience">Date de fin:</label>';
+        echo '<input type="date" id="date_end_experience" name="date_end_experience" value="' . $experience["date_end"] . '" required><br>';
+
+        echo '<label for="description_experience">Description:</label>';
+        echo '<textarea id="description_experience" name="description_experience" rows="4" required>' . $experience["description"] . '</textarea><br>';
+
+        echo '<input type="submit" name="update_experience" value="Mettre à jour">';
+        echo '</form>';
+    }
+    ?>
+</ul>
 
         <!-- Formation -->
         <h2>Ajouter une formation</h2>
@@ -323,24 +347,42 @@ if (isset($_GET["logout"])) {
             <input type="submit" name="ajouter_formation" value="Ajouter la formation">
         </form>
 
-        <h2>Formations</h2>
-        <ul>
-            <?php
-            // Sélectionnez les formations de l'utilisateur connecté depuis la base de données
-            $formationsQuery = "SELECT nom_formation, nom_etablissement, ville, date_start, date_end, description FROM formation WHERE utilisateurs_id = ?";
-            $formationsStmt = $conn->prepare($formationsQuery);
-            $formationsStmt->execute([$_SESSION["id"]]);
-            $formations = $formationsStmt->fetchAll(PDO::FETCH_ASSOC);
+        <h2>Expériences</h2>
+<ul>
+    <?php
+    // Sélectionnez les expériences de l'utilisateur connecté depuis la base de données
+    $experiencesQuery = "SELECT id, poste, employeur, ville, date_start, date_end, description FROM experience WHERE utilisateurs_id = ?";
+    $experiencesStmt = $conn->prepare($experiencesQuery);
+    $experiencesStmt->execute([$_SESSION["id"]]);
+    $experiences = $experiencesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            foreach ($formations as $formation) {
-                echo "<li><strong>" . $formation["nom_formation"] . "</strong> à " . $formation["nom_etablissement"] . "<br>";
-                echo "Ville : " . $formation["ville"] . "<br>";
-                echo "Date de début : " . $formation["date_start"] . "<br>";
-                echo "Date de fin : " . $formation["date_end"] . "<br>";
-                echo "Description : " . $formation["description"] . "</li><br>";
-            }
-            ?>
-        </ul>
+    foreach ($experiences as $experience) {
+        // Afficher les détails de l'expérience par défaut
+        echo "<li><strong>" . $experience["poste"] . "</strong> chez " . $experience["employeur"] . "<br>";
+        echo "Ville : " . $experience["ville"] . "<br>";
+        echo "Date de début : " . $experience["date_start"] . "<br>";
+        echo "Date de fin : " . $experience["date_end"] . "<br>";
+        echo "Description : " . $experience["description"] . "<br>";
+
+        // Ajouter un bouton "Modifier" qui déclenchera l'édition
+        echo '<button class="edit-button" data-experience-id="' . $experience["id"] . '">Modifier</button>';
+        
+        // Afficher le formulaire d'édition caché
+        echo '<form class="edit-form" style="display: none;" method="POST" action="profil.php">';
+        echo '<input type="hidden" name="experience_id" value="' . $experience["id"] . '">';
+        echo '<input type="text" name="poste" value="' . $experience["poste"] . '" required><br>';
+        echo '<input type="text" name="employeur" value="' . $experience["employeur"] . '" required><br>';
+        echo '<input type="text" name="ville_experience" value="' . $experience["ville"] . '" required><br>';
+        echo '<input type="date" name="date_start_experience" value="' . $experience["date_start"] . '" required><br>';
+        echo '<input type="date" name="date_end_experience" value="' . $experience["date_end"] . '" required><br>';
+        echo '<textarea name="description_experience" rows="4" required>' . $experience["description"] . '</textarea><br>';
+        echo '<input type="submit" name="submit_edit_experience" value="Enregistrer">';
+        echo '</form>';
+
+        echo "</li><br>";
+    }
+    ?>
+</ul>
 
         <!-- Competence -->
 
@@ -350,10 +392,16 @@ if (isset($_GET["logout"])) {
             <input type="text" id="nom_competence" name="nom_competence" required><br>
 
             <label for="niveau_competence">Niveau de la compétence:</label>
-            <input type="text" id="niveau_competence" name="niveau_competence" required><br>
+            <select id="niveau_competence" name="niveau_competence" required>
+                <option value="Débutant">Débutant</option>
+                <option value="Intermédiaire">Intermédiaire</option>
+                <option value="Avancé">Avancé</option>
+                <option value="Expert">Expert</option>
+            </select><br>
 
             <input type="submit" name="ajouter_competence" value="Ajouter la compétence">
         </form>
+
 
         <h2>Compétences</h2>
         <ul>
@@ -400,11 +448,19 @@ if (isset($_GET["logout"])) {
 
         <h2>Ajouter une langue</h2>
         <form method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
-            <label for="nom_langue">Langue:</label>
+            <label for="nom_langue">Nom de la langue:</label>
             <input type="text" id="nom_langue" name="nom_langue" required><br>
 
             <label for="niveau_langue">Niveau de la langue:</label>
-            <input type="text" id="niveau_langue" name="niveau_langue" required><br>
+            <select id="niveau_langue" name="niveau_langue" required>
+                <option value="Débutant">A0 : Débutant</option>
+                <option value="Elémentaire">A1 : Elémentaire</option>
+                <option value="Pré-intermédiaire">A2 : Pré-intermédiaire</option>
+                <option value="Intermédiaire">B1 : Intermédiaire</option>
+                <option value="Intermédiaire supérieur">B2 : Intermédiaire supérieur</option>
+                <option value="Avancé">C1 : Avancé</option>
+                <option value="Courant">C2 : Courant</option>
+            </select><br>
 
             <input type="submit" name="ajouter_langue" value="Ajouter la langue">
         </form>
@@ -438,6 +494,18 @@ if (isset($_GET["logout"])) {
         <input type="hidden" name="logout" value="true">
         <input type="submit" value="Se déconnecter">
     </form>
+
+    <script>
+function toggleUpdateForm(experienceId) {
+    var formId = "updateForm" + experienceId;
+    var form = document.getElementById(formId);
+    if (form.style.display === "none" || form.style.display === "") {
+        form.style.display = "block";
+    } else {
+        form.style.display = "none";
+    }
+}
+</script>
 
 </body>
 </html>
