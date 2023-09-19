@@ -13,29 +13,35 @@ try {
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Récupérer les informations de l'utilisateur connecté
-    $query = "SELECT login, prenom, nom, password, phone, postal, ville, photo FROM utilisateurs WHERE login = ?";
+    $query = "SELECT login, prenom, nom, mail, password, phone, postal, ville, photo FROM utilisateurs WHERE login = ?";
     $stmt = $conn->prepare($query);
     $stmt->execute([$_SESSION["login"]]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $row = $stmt->fetch();
 
-    // langue
+
+
+// langue
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // ...
+
+    // Ajouter une langue
         if (isset($_POST["ajouter_langue"])) {
             // Récupérez les données du formulaire de langue
             $nom_langue = $_POST["nom_langue"];
             $niveau_langue = $_POST["niveau_langue"]; // Récupérez la valeur sélectionnée
-
+    
             // Insérez les données dans la table "langue"
             $insertQuery = "INSERT INTO langue (utilisateurs_id, nom, niveau) VALUES (?, ?, ?)";
             $insertStmt = $conn->prepare($insertQuery);
             $insertStmt->execute([$_SESSION["id"], $nom_langue, $niveau_langue]);
-
+    
             // Redirigez l'utilisateur vers la page "profil.php" après l'ajout
             header("Location: profil.php");
             exit;
         }
-    }
+        }
+    
 
     // expérience
 
@@ -53,8 +59,6 @@ try {
             $insertQuery = "INSERT INTO experience (utilisateurs_id, poste, employeur, ville, date_start, date_end, description) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $insertStmt = $conn->prepare($insertQuery);
             $insertStmt->execute([$_SESSION["id"], $poste, $employeur, $ville_experience, $date_start_experience, $date_end_experience, $description_experience]);
-
-            var_dump($_SESSION["id"]);
 
             // Redirigez l'utilisateur vers la page "profil.php" après l'ajout
             header("Location: profil.php");
@@ -81,19 +85,19 @@ try {
             exit;
         }
 
-        // compétence
+        // Competence
 
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (isset($_POST["ajouter_competence"])) {
                 // Récupérez les données du formulaire de compétence
                 $nom_competence = $_POST["nom_competence"];
                 $niveau_competence = $_POST["niveau_competence"]; // Récupérez la valeur sélectionnée
-
+        
                 // Insérez les données dans la table "competence"
                 $insertQuery = "INSERT INTO competence (utilisateurs_id, nom, niveau) VALUES (?, ?, ?)";
                 $insertStmt = $conn->prepare($insertQuery);
                 $insertStmt->execute([$_SESSION["id"], $nom_competence, $niveau_competence]);
-
+        
                 // Redirigez l'utilisateur vers la page "profil.php" après l'ajout
                 header("Location: profil.php");
                 exit;
@@ -123,16 +127,17 @@ try {
         
         if (isset($_POST["enregistrer_modifications"])) {
             // Récupérer les nouvelles données du formulaire de profil
-            $newLogin = $_POST["login"];
-            $newPrenom = $_POST["prenom"];
-            $newNom = $_POST["nom"];
-            $newphone = $_POST["phone"];
-            $newpostal = $_POST["postal"];
-            $newville = $_POST["ville"];
-            $newPassword = $_POST["password"];
-            $confirmPassword = $_POST["confirmPassword"];
-
-            // Récupérer le mot de passe actuel
+        $newLogin = $_POST["login"];
+        $newPrenom = $_POST["prenom"];
+        $newNom = $_POST["nom"];
+        $newMail = $_POST["mail"];
+        $newphone = $_POST["phone"];
+        $newpostal = $_POST["postal"];
+        $newville = $_POST["ville"];
+        $newPassword = $_POST["password"];
+        $confirmPassword = $_POST["confirmPassword"];
+    
+// Récupérer le mot de passe actuel
             $currentPasswordQuery = "SELECT password FROM utilisateurs WHERE login = ?";
             $currentPasswordStmt = $conn->prepare($currentPasswordQuery);
             $currentPasswordStmt->execute([$_SESSION["login"]]);
@@ -154,30 +159,30 @@ try {
                 $hashedPassword = $currentPassword;
             }
 
-            // Mettre à jour les informations de l'utilisateur
-            $updateQuery = "UPDATE utilisateurs SET login = ?, prenom = ?, nom = ?, phone = ?, postal = ?, ville = ?, password = ? WHERE login = ?";
+                    // Mettre à jour les informations de l'utilisateur
+            $updateQuery = "UPDATE utilisateurs SET login = ?, prenom = ?, nom = ?, mail = ?, phone = ?, postal = ?, ville = ?, password = ? WHERE login = ?";
             $updateStmt = $conn->prepare($updateQuery);
-            $updateStmt->execute([$newLogin, $newPrenom, $newNom, $newphone, $newpostal, $newville, $hashedPassword, $_SESSION["login"]]);
+            $updateStmt->execute([$newLogin, $newPrenom, $newNom, $newMail, $newphone, $newpostal, $newville, $hashedPassword, $_SESSION["login"]]);
 
             // Vérifier si un nouveau fichier image a été téléchargé
             if ($_FILES["photo"]["error"] === UPLOAD_ERR_OK) {
                 // Un nouveau fichier image a été téléchargé
                 // Vous pouvez ajouter votre logique de validation d'image ici
 
-                // Mettre à jour la photo de profil
-                $updateQuery = "UPDATE utilisateurs SET login = ?, prenom = ?, nom = ?, phone = ?, postal = ?, ville = ?, photo = ? WHERE login = ?";
+// Mettre à jour la photo de profil
+                $updateQuery = "UPDATE utilisateurs SET login = ?, prenom = ?, nom = ?, mail = ?, phone = ?, postal = ?, ville = ?, photo = ? WHERE login = ?";
                 $updateStmt = $conn->prepare($updateQuery);
-                $updateStmt->execute([$newLogin, $newPrenom, $newNom, $newphone, $newpostal, $newville, $_FILES["photo"]["name"], $_SESSION["login"]]);
+                $updateStmt->execute([$newLogin, $newPrenom, $newNom, $newMail, $newphone, $newpostal, $newville, $_FILES["photo"]["name"], $_SESSION["login"]]);
+        
+// Déplacer le fichier téléchargé
+                    move_uploaded_file($_FILES["photo"]["tmp_name"], "upload/" . $_FILES["photo"]["name"]);
+                    echo "Votre fichier a été téléchargé avec succès.";
+}
 
-                // Déplacer le fichier téléchargé
-                move_uploaded_file($_FILES["photo"]["tmp_name"], "upload/" . $_FILES["photo"]["name"]);
-                echo "Votre fichier a été téléchargé avec succès.";
-            }
-
-            // Redirection vers la page de profil mise à jour
+                    // Redirection vers la page de profil mise à jour
             header("Location: profil.php");
-            exit;
-        }
+                        exit;
+}
     }
 } catch (PDOException $e) {
     echo "Erreur : " . $e->getMessage();
@@ -192,7 +197,7 @@ if (isset($_GET["logout"])) {
     session_destroy();
 
     // Redirection vers la page de connexion
-    header("Location: connexion.php");
+    header("Location: index.php");
     exit;
 }
 ?>
@@ -201,12 +206,17 @@ if (isset($_GET["logout"])) {
 <html>
 <head>
     <title>Profil</title>
-    <link id="style" rel="stylesheet" type="text/css" href="style6.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&display=swap');
-  </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" 
+    integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link id="style" rel="stylesheet" type="text/css" href="styleprof.css">
+    <script defer src="script.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Assistant&display=swap');
+    </style>
 </head>
 <body class="bodyprof">
+    <section class="modif">
     <form method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>" enctype="multipart/form-data">
         <h1>Profil</h1>
         <!-- Display the user's current login and other fields here -->
@@ -219,6 +229,9 @@ if (isset($_GET["logout"])) {
         <label for="nom">Nom:</label>
         <input type="text" id="nom" name="nom" value="<?php echo $row["nom"]; ?>" required><br>
 
+        <label for="mail">Mail:</label>
+        <input type="text" id="mail" name="mail" value="<?php echo $row["mail"]; ?>" required><br>
+
         <label for="phone">Numéro de téléphone:</label>
         <input type="tel" id="phone" name="phone" value="<?php echo $row["phone"]; ?>" required><br>
 
@@ -230,30 +243,30 @@ if (isset($_GET["logout"])) {
 
         <!-- Affichage du champ de modification du mot de passe -->
         <label for="password">Nouveau mot de passe:</label>
-        <input type="password" id="password" name="password" value="<?php echo isset($_POST['password']) ? $_POST['password'] : ''; ?>" placeholder="Laissez vide pour conserver le mot de passe actuel">
+        <input type="password" id="password" name="password" value="<?php echo isset($_POST['password']) ? $_POST['password'] : ''; ?>" placeholder="Laissez vide pour conserver le mot de passe actuel"><br>
 
-        <label for="confirmPassword">Confirmez le nouveau mot de passe:</label>
+    <label for="confirmPassword">Confirmez le nouveau mot de passe:</label>
         <input type="password" id="confirmPassword" name="confirmPassword" value="<?php echo isset($_POST['confirmPassword']) ? $_POST['confirmPassword'] : ''; ?>" placeholder="Laissez vide pour conserver le mot de passe actuel">
 
-
-        <br>
+    
+              <br>
 
         <!-- Allow the user to upload a new photo -->
         <label for="fileUpload">Photo de profil:</label>
         <input type="file" id="fileUpload" name="photo" >
-        
-        <br>
-        
-        <img src=upload/<?=$row['photo']?> height="200">
 
         <br>
         
-        <input type="submit" name="enregistrer_modifications" value="Enregistrer les modifications">
+        <img src=upload/<?=$row['photo']?> height="100" >
+
+        <br>
+
+        <button class="button"><input type="submit" name="enregistrer_modifications" value="Enregistrer les modifications"></button>
     </form>
 
         <!-- expérience -->
-        <h2>Ajouter une expérience</h2>
-        <form method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+        <h2 id="experience-link">Ajouter une expérience +</h2>
+        <form id="experience-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
             <label for="poste">Poste:</label>
             <input type="text" id="poste" name="poste" required><br>
 
@@ -272,60 +285,12 @@ if (isset($_GET["logout"])) {
             <label for="description_experience">Description:</label>
             <textarea id="description_experience" name="description_experience" rows="4" required></textarea><br>
 
-            <input type="submit" name="ajouter_experience" value="Ajouter l'expérience">
+            <button class="button"><input type="submit" name="ajouter_experience" value="Ajouter l'expérience"></button>
         </form>
-        
-        <h2>Expériences</h2>
-<ul>
-    <?php
-    // Sélectionnez les expériences de l'utilisateur connecté depuis la base de données
-    $experiencesQuery = "SELECT id, poste, employeur, ville, date_start, date_end, description FROM experience WHERE utilisateurs_id = ?";
-    $experiencesStmt = $conn->prepare($experiencesQuery);
-    $experiencesStmt->execute([$_SESSION["id"]]);
-    $experiences = $experiencesStmt->fetchAll(PDO::FETCH_ASSOC);
-
-    foreach ($experiences as $experience) {
-        echo "<li><strong>" . $experience["poste"] . "</strong> chez " . $experience["employeur"] . "<br>";
-        echo "Ville : " . $experience["ville"] . "<br>";
-        echo "Date de début : " . $experience["date_start"] . "<br>";
-        echo "Date de fin : " . $experience["date_end"] . "<br>";
-        echo "Description : " . $experience["description"] . "<br>";
-
-        // Bouton "Modifier" pour afficher le formulaire de mise à jour
-        echo '<button onclick="toggleUpdateForm(' . $experience["id"] . ')">Modifier</button>';
-
-        echo "</li><br>";
-
-        // Formulaire de mise à jour caché
-        echo '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '" style="display: none;" id="updateForm' . $experience["id"] . '">';
-        echo '<input type="hidden" name="experience_id" value="' . $experience["id"] . '">';
-        echo '<label for="poste">Poste:</label>';
-        echo '<input type="text" id="poste" name="poste" value="' . $experience["poste"] . '" required><br>';
-
-        echo '<label for="employeur">Employeur:</label>';
-        echo '<input type="text" id="employeur" name="employeur" value="' . $experience["employeur"] . '" required><br>';
-
-        echo '<label for="ville_experience">Ville:</label>';
-        echo '<input type="text" id="ville_experience" name="ville_experience" value="' . $experience["ville"] . '" required><br>';
-
-        echo '<label for="date_start_experience">Date de début:</label>';
-        echo '<input type="date" id="date_start_experience" name="date_start_experience" value="' . $experience["date_start"] . '" required><br>';
-
-        echo '<label for="date_end_experience">Date de fin:</label>';
-        echo '<input type="date" id="date_end_experience" name="date_end_experience" value="' . $experience["date_end"] . '" required><br>';
-
-        echo '<label for="description_experience">Description:</label>';
-        echo '<textarea id="description_experience" name="description_experience" rows="4" required>' . $experience["description"] . '</textarea><br>';
-
-        echo '<input type="submit" name="update_experience" value="Mettre à jour">';
-        echo '</form>';
-    }
-    ?>
-</ul>
 
         <!-- Formation -->
-        <h2>Ajouter une formation</h2>
-        <form method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+        <h2 id="formation-link">Ajouter une formation +</h2>
+        <form id="formation-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
             <label for="nom_formation">Nom de la formation:</label>
             <input type="text" id="nom_formation" name="nom_formation" required><br>
 
@@ -344,50 +309,13 @@ if (isset($_GET["logout"])) {
             <label for="description_formation">Description:</label>
             <textarea id="description_formation" name="description_formation" rows="4" required></textarea><br>
 
-            <input type="submit" name="ajouter_formation" value="Ajouter la formation">
+            <button class="button"><input type="submit" name="ajouter_formation" value="Ajouter la formation"></button>
         </form>
-
-        <h2>Expériences</h2>
-<ul>
-    <?php
-    // Sélectionnez les expériences de l'utilisateur connecté depuis la base de données
-    $experiencesQuery = "SELECT id, poste, employeur, ville, date_start, date_end, description FROM experience WHERE utilisateurs_id = ?";
-    $experiencesStmt = $conn->prepare($experiencesQuery);
-    $experiencesStmt->execute([$_SESSION["id"]]);
-    $experiences = $experiencesStmt->fetchAll(PDO::FETCH_ASSOC);
-
-    foreach ($experiences as $experience) {
-        // Afficher les détails de l'expérience par défaut
-        echo "<li><strong>" . $experience["poste"] . "</strong> chez " . $experience["employeur"] . "<br>";
-        echo "Ville : " . $experience["ville"] . "<br>";
-        echo "Date de début : " . $experience["date_start"] . "<br>";
-        echo "Date de fin : " . $experience["date_end"] . "<br>";
-        echo "Description : " . $experience["description"] . "<br>";
-
-        // Ajouter un bouton "Modifier" qui déclenchera l'édition
-        echo '<button class="edit-button" data-experience-id="' . $experience["id"] . '">Modifier</button>';
-        
-        // Afficher le formulaire d'édition caché
-        echo '<form class="edit-form" style="display: none;" method="POST" action="profil.php">';
-        echo '<input type="hidden" name="experience_id" value="' . $experience["id"] . '">';
-        echo '<input type="text" name="poste" value="' . $experience["poste"] . '" required><br>';
-        echo '<input type="text" name="employeur" value="' . $experience["employeur"] . '" required><br>';
-        echo '<input type="text" name="ville_experience" value="' . $experience["ville"] . '" required><br>';
-        echo '<input type="date" name="date_start_experience" value="' . $experience["date_start"] . '" required><br>';
-        echo '<input type="date" name="date_end_experience" value="' . $experience["date_end"] . '" required><br>';
-        echo '<textarea name="description_experience" rows="4" required>' . $experience["description"] . '</textarea><br>';
-        echo '<input type="submit" name="submit_edit_experience" value="Enregistrer">';
-        echo '</form>';
-
-        echo "</li><br>";
-    }
-    ?>
-</ul>
 
         <!-- Competence -->
 
-        <h2>Ajouter une compétence</h2>
-        <form method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+        <h2 id="competence-link">Ajouter une compétence +</h2>
+        <form id="competence-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
             <label for="nom_competence">Nom de la compétence:</label>
             <input type="text" id="nom_competence" name="nom_competence" required><br>
 
@@ -399,56 +327,23 @@ if (isset($_GET["logout"])) {
                 <option value="Expert">Expert</option>
             </select><br>
 
-            <input type="submit" name="ajouter_competence" value="Ajouter la compétence">
+            <button class="button"><input type="submit" name="ajouter_competence" value="Ajouter la compétence"></button>
         </form>
-
-
-        <h2>Compétences</h2>
-        <ul>
-            <?php
-            // Sélectionnez les compétences de l'utilisateur connecté depuis la base de données
-            $competencesQuery = "SELECT nom, niveau FROM competence WHERE utilisateurs_id = ?";
-            $competencesStmt = $conn->prepare($competencesQuery);
-            $competencesStmt->execute([$_SESSION["id"]]);
-            $competences = $competencesStmt->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($competences as $competence) {
-                echo "<li><strong>" . $competence["nom"] . "</strong> (Niveau : " . $competence["niveau"] . ")</li><br>";
-            }
-            ?>
-        </ul>
 
         <!-- Interet -->
 
-        <h2>Ajouter un intérêt</h2>
-        <form method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+        <h2 id="interet-link">Ajouter un intérêt +</h2>
+        <form id="interet-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
             <label for="nom_interet">Nom de l'intérêt :</label>
             <input type="text" id="nom_interet" name="nom_interet" required><br>
 
-            <input type="submit" name="ajouter_interet" value="Ajouter l'intérêt">
+            <button class="button"><input type="submit" name="ajouter_interet" value="Ajouter l'intérêt"></button>
         </form>
-
-
-        <h2>Intérêts</h2>
-        <ul>
-            <?php
-            // Sélectionnez les intérêts de l'utilisateur connecté depuis la base de données
-            $interetsQuery = "SELECT nom FROM interet WHERE utilisateurs_id = ?";
-            $interetsStmt = $conn->prepare($interetsQuery);
-            $interetsStmt->execute([$_SESSION["id"]]);
-            $interets = $interetsStmt->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($interets as $interet) {
-                echo "<li><strong>" . $interet["nom"] . "</strong></li><br>";
-            }
-            ?>
-        </ul>
-
         <!-- Langue -->
 
-        <h2>Ajouter une langue</h2>
-        <form method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
-            <label for="nom_langue">Nom de la langue:</label>
+        <h2 id="langue-link">Ajouter une langue +</h2>
+        <form id="langue-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+            <label for="nom_langue">Langue:</label>
             <input type="text" id="nom_langue" name="nom_langue" required><br>
 
             <label for="niveau_langue">Niveau de la langue:</label>
@@ -462,40 +357,157 @@ if (isset($_GET["logout"])) {
                 <option value="Courant">C2 : Courant</option>
             </select><br>
 
-            <input type="submit" name="ajouter_langue" value="Ajouter la langue">
+            <button class="button"><input type="submit" name="ajouter_langue" value="Ajouter la langue"></button>
         </form>
-
-        <h2>Langues</h2>
-        
-        <ul>
-            <?php
-            // Sélectionnez les langues de l'utilisateur connecté depuis la base de données
-            $languesQuery = "SELECT nom, niveau FROM langue WHERE utilisateurs_id = ?";
-            $languesStmt = $conn->prepare($languesQuery);
-            $languesStmt->execute([$_SESSION["id"]]);
-            $langues = $languesStmt->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($langues as $langue) {
-                echo "<li><strong>" . $langue["nom"] . "</strong> (Niveau : " . $langue["niveau"] . ")</li><br>";
-            }
-            ?>
-        </ul>
-
-
-    <br>
-    
-    <!-- Bouton pour créer un nouveau CV -->
-    <a href="nouveaucv.php">Créer un nouveau CV</a>
-
-    <!-- Bouton pour voir un CV enregistré -->
-    <a href="voircv.php">Voir un CV enregistré</a>
-    
+        <br>
     <form method="GET" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
         <input type="hidden" name="logout" value="true">
-        <input type="submit" value="Se déconnecter">
-    </form>
+        <button class="button"><input type="submit" value="Se déconnecter"></button>
+    </form>     
+    
+    <!-- changement de couleur -->
 
-    <script>
+    <label for="colorPicker">Choisir une couleur pour le fond :</label>
+<input type="color" id="colorPicker">
+
+<label for="iconColorPicker">Choisir une couleur pour les icônes :</label>
+<input type="color" id="iconColorPicker">
+
+<label for="titleColorPicker">Choisir une couleur pour les titres :</label>
+<input type="color" id="titleColorPicker">
+
+<label for="textColorPicker">Choisir une couleur pour le texte :</label>
+<input type="color" id="textColorPicker">          
+    </section>
+
+
+
+
+  <!-- CV -->
+
+    <section class="container">
+
+        <div class="left_side">
+            <div class="profileText">
+                <div class="imgBx">
+                    <img src=upload/<?=$row['photo']?>>
+                </div>
+                <h2><?php echo $row["prenom"]; ?> <?php echo $row["nom"]; ?></h2>
+            </div>
+
+            <div class="contactInfo">
+                <h3 class="title">Contact</h3>
+                <ul>
+                    <li>
+                        <span class="icon"><i class="fa fa-phone" aria-hidden="true"></i></span>
+                        <span class="text"><?php echo $row["phone"]; ?></span>
+                    </li>
+                    <li>
+                        <span class="icon"><i class="fa fa-envelope-o" aria-hidden="true"></i></span>
+                        <span class="text"><?php echo $row["mail"]; ?></span>
+                    </li>
+                    <li>
+                        <span class="icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+                        <span class="text"><?php echo $row["ville"]; ?></span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="contactInfo">
+                <h3 class="title">Interet</h3>
+                <ul>
+                    <?php
+                        // Sélectionnez les intérêts de l'utilisateur connecté depuis la base de données
+                        $interetsQuery = "SELECT nom FROM interet WHERE utilisateurs_id = ?";
+                        $interetsStmt = $conn->prepare($interetsQuery);
+                        $interetsStmt->execute([$_SESSION["id"]]);
+                        $interets = $interetsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($interets as $interet) {
+                            echo "<li>
+                            <span class='icon'><i class='fa fa-star' aria-hidden='true'></i></span>
+                            <span class='text'>" . $interet["nom"] . "</span></li>";
+                        }
+                    ?>
+                </ul>
+            </div>
+
+            <div class="contactInfo language">
+                <h3 class="title">Langues</h3>
+                <ul>
+                    <?php
+                        // Sélectionnez les langues de l'utilisateur connecté depuis la base de données
+                        $languesQuery = "SELECT nom, niveau FROM langue WHERE utilisateurs_id = ?";
+                        $languesStmt = $conn->prepare($languesQuery);
+                        $languesStmt->execute([$_SESSION["id"]]);
+                        $langues = $languesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($langues as $langue) {
+                            echo "<li><h4>" . $langue["nom"] . "</h4> 
+                            <h5>(Niveau : " . $langue["niveau"] . ")</h5></li>";
+                        }
+                    ?>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="right_side">
+            <div class="about">
+                <h2 class="title2">Expérience</h2>
+                    <?php
+                    // Sélectionnez les expériences de l'utilisateur connecté depuis la base de données
+                    $experiencesQuery = "SELECT id, poste, employeur, ville, date_start, date_end, description FROM experience WHERE utilisateurs_id = ?";
+                    $experiencesStmt = $conn->prepare($experiencesQuery);
+                    $experiencesStmt->execute([$_SESSION["id"]]);
+                    $experiences = $experiencesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($experiences as $experience) {
+                        echo "<div class='box'><div class='year_company'><h5>" . $experience["date_start"] . "/" . $experience["date_end"] . "</h5>
+                        <h5>" . $experience["employeur"] . "</h5>
+                        <h5>". $experience["ville"] ."</h5></div>
+                        <div class='text'><h4>" . $experience["poste"] . "</h4>
+                        <p>" . $experience["description"] . "</p></div></div>";
+                    }
+                    ?>
+            </div>
+
+            <div class="about">
+                <h2 class="title2">Formations</h2>
+                <?php
+                    // Sélectionnez les formations de l'utilisateur connecté depuis la base de données
+                    $formationsQuery = "SELECT nom_formation, nom_etablissement, ville, date_start, date_end, description FROM formation WHERE utilisateurs_id = ?";
+                    $formationsStmt = $conn->prepare($formationsQuery);
+                    $formationsStmt->execute([$_SESSION["id"]]);
+                    $formations = $formationsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($formations as $formation) {
+                        echo "<div class='box'><div class='year_company'><h5>" . $formation["date_start"] . "/" . $formation["date_end"] . "</h5>
+                        <h5>" . $formation["ville"] . "</h5></div>
+                        <div class='text'><h4>" . $formation["nom_formation"] . "</h4>
+                        <h6>" . $formation["nom_etablissement"] . "</h6>
+                        <p>" . $formation["description"] . "</p></div></div>";
+                    }
+                    ?>
+            </div>
+
+            <div class="about skills">
+                <h2 class="title2">Compétences</h2>
+                <?php
+                    // Sélectionnez les compétences de l'utilisateur connecté depuis la base de données
+                    $competencesQuery = "SELECT nom, niveau FROM competence WHERE utilisateurs_id = ?";
+                    $competencesStmt = $conn->prepare($competencesQuery);
+                    $competencesStmt->execute([$_SESSION["id"]]);
+                    $competences = $competencesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($competences as $competence) {
+                        echo "<div class='box'><h4>" . $competence["nom"] . "</h4>
+                        <p>" . $competence["niveau"] . "</p></div>";
+                    }
+                    ?>
+            </div>
+        </div>
+        
+        <script>
 function toggleUpdateForm(experienceId) {
     var formId = "updateForm" + experienceId;
     var form = document.getElementById(formId);
@@ -505,6 +517,69 @@ function toggleUpdateForm(experienceId) {
         form.style.display = "none";
     }
 }
+
+// Sélectionnez l'élément input de type "color"
+const colorPicker = document.getElementById("colorPicker");
+
+// Sélectionnez l'élément que vous souhaitez changer de couleur (dans ce cas, left_side)
+const leftSide = document.querySelector(".left_side");
+
+// Ajoutez un écouteur d'événements pour détecter le changement de la couleur
+colorPicker.addEventListener("input", function () {
+    const selectedColor = colorPicker.value;
+    leftSide.style.backgroundColor = selectedColor;
+});
+
+// Sélectionnez l'élément input de type "color" pour les icônes
+const iconColorPicker = document.getElementById("iconColorPicker");
+
+// Sélectionnez tous les éléments avec la classe "icon"
+const icons = document.querySelectorAll(".icon");
+
+// Ajoutez un écouteur d'événements pour détecter le changement de la couleur des icônes
+iconColorPicker.addEventListener("input", function () {
+    const selectedIconColor = iconColorPicker.value;
+    
+    // Parcourez tous les éléments "icon" et mettez à jour leur couleur
+    icons.forEach(function (icon) {
+        icon.style.color = selectedIconColor;
+    });
+});
+
+// Sélectionnez l'élément input de type "color" pour les titres "title2"
+const titleColorPicker = document.getElementById("titleColorPicker");
+
+// Sélectionnez tous les éléments avec la classe "title2"
+const title2Elements = document.querySelectorAll(".title2");
+
+// Ajoutez un écouteur d'événements pour détecter le changement de la couleur des titres "title2"
+titleColorPicker.addEventListener("input", function () {
+    const selectedTitleColor = titleColorPicker.value;
+    
+    // Parcourez tous les éléments "title2" et mettez à jour leur couleur
+    title2Elements.forEach(function (title2Element) {
+        title2Element.style.color = selectedTitleColor;
+    });
+});
+
+// Sélectionnez l'élément input de type "color" pour le texte
+const textColorPicker = document.getElementById("textColorPicker");
+
+// Sélectionnez tous les éléments avec la classe "text" à l'intérieur des éléments avec les classes "about", "box", et "text"
+const textElements = document.querySelectorAll(".about .box .text");
+
+// Ajoutez un écouteur d'événements pour détecter le changement de la couleur du texte
+textColorPicker.addEventListener("input", function () {
+    const selectedTextColor = textColorPicker.value;
+    
+    // Parcourez tous les éléments "text" et mettez à jour leur couleur de texte
+    textElements.forEach(function (textElement) {
+        textElement.style.color = selectedTextColor;
+    });
+});
+
+
+
 </script>
 
 </body>
