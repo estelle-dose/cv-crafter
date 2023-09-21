@@ -220,41 +220,51 @@ if (isset($_GET["logout"])) {
     <div class="form">
     <form method="POST" class="form" action="<?php echo $_SERVER["PHP_SELF"]; ?>" enctype="multipart/form-data">
 
-        <p class="profil">Profil</p>
-        <div class="img">
-        <img src=upload/<?=$row['photo']?>>
-        </div>
-        
-        <label>
-            <input class="input" type="text" id="login" name="login" value="<?php echo $row["login"]; ?>" required>
-        </label>
+    <div class="flex">
+            <div class="img">
+                <img src="upload/<?=$row['photo']?>" alt="Photo de profil">
+            </div>
+            
+            <div class="form-fields">
+                <label>
+                    <input class="input input-field" type="text" id="login" name="login" value="<?php echo $row["login"]; ?>" required>
+                    <span class>Login</span>
+                </label>
+                <div class="flex">
+                <label>
+                    <input class="input input-field" type="text" id="prenom" name="prenom" value="<?php echo $row["prenom"]; ?>" required>
+                    <span>Prenom</span>
+                </label>
+            
 
-        <div class="flex">
-            <label>
-                <input class="input" type="text" id="prenom" name="prenom" value="<?php echo $row["prenom"]; ?>" required>
-            </label>
-
-            <label>
-                <input class="input" type="text" id="nom" name="nom" value="<?php echo $row["nom"]; ?>" required>
-            </label>
+                <label>
+                    <input class="input input-field" type="text" id="nom" name="nom" value="<?php echo $row["nom"]; ?>" required>
+                    <span>Nom</span>
+                </label>
         </div>
+        </div>
+    </div>
 
         <label>
             <input class="input" type="text" id="mail" name="mail" value="<?php echo $row["mail"]; ?>" required>
+            <span>Mail</span>
         </label>
 
         <label>
             <input class="input" type="tel" id="phone" name="phone" value="<?php echo $row["phone"]; ?>" required>
+            <span>Numero de tel</span>
         </label>
 
     <div class="flex">
 
         <label>
             <input class="input" type="text" id="postal" name="postal" value="<?php echo $row["postal"]; ?>" required>
+            <span>Code postal</span>
         </label>
 
         <label>
             <input class="input" type="text" id="ville" name="ville" value="<?php echo $row["ville"]; ?>" required>
+            <span>Ville</span>
         </label>
     </div>
 
@@ -271,8 +281,13 @@ if (isset($_GET["logout"])) {
 
         <!-- Allow the user to upload a new photo -->
         <div class="flex">
-            <label for="fileUpload">Photo de profil:</label>
-            <input type="file" id="fileUpload" name="photo" >
+            <label class="photo" for="fileUpload">Photo de profil:</label>
+            <!-- Cachez l'élément input de type file -->
+            <input type="file" id="fileUpload" name="photo" style="display: none;">
+
+            <!-- Bouton personnalisé pour choisir un fichier -->
+            <label for="fileUpload" class="button">Choisir un fichier</label>
+
         </div>
 
 
@@ -282,7 +297,7 @@ if (isset($_GET["logout"])) {
 
     </form>
 
-    <form class="form" method="GET" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+    <form class="formdeco" method="GET" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
         <input type="hidden" name="logout" value="true">
         
         <button class="button" type="submit">Se déconnecter</button>
@@ -291,25 +306,41 @@ if (isset($_GET["logout"])) {
     </div>
 
         <!-- expérience -->
+
+        <div class="form">
         <h2 id="experience-link">Ajouter une expérience +</h2>
         <form id="experience-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
-            <label for="poste">Poste:</label>
-            <input type="text" id="poste" name="poste" required><br>
+            <label>
+                <input class="input" type="text" id="poste" name="poste" required>
+                <span>Poste</span>
+            </label>
 
-            <label for="employeur">Employeur:</label>
-            <input type="text" id="employeur" name="employeur" required><br>
+            <label>
+                <input class="input" type="text" id="employeur" name="employeur" required>
+                <span>Employeur</span>
+            </label>
 
-            <label for="ville_experience">Ville:</label>
-            <input type="text" id="ville_experience" name="ville_experience" required><br>
+            <label>
+                <input class="input" type="text" id="ville_experience" name="ville_experience" required>
+                <span>Ville</span>
+            </label>
+            
+        <div class="flex">
+            <label>
+                <input class="input" type="date" id="date_start_experience" name="date_start_experience" required>
+                <span>Date de début</span>
+            </label>
 
-            <label for="date_start_experience">Date de début:</label>
-            <input type="date" id="date_start_experience" name="date_start_experience" required><br>
+            <label>
+                <input class="input" type="date" id="date_end_experience" name="date_end_experience" required>
+                <span>Date de fin</span>
+            </label>
+        </div>
 
-            <label for="date_end_experience">Date de fin:</label>
-            <input type="date" id="date_end_experience" name="date_end_experience" required><br>
-
-            <label for="description_experience">Description:</label>
-            <textarea id="description_experience" name="description_experience" rows="4" required></textarea><br>
+            <label>
+                <textarea class="input" id="description_experience" name="description_experience" rows="4" required></textarea>
+                <span>Description</span>
+            </label>
 
             <button class="button" type="submit" name="ajouter_experience">Ajouter l'expérience</button>
         </form>
@@ -385,9 +416,11 @@ if (isset($_GET["logout"])) {
 
             <button class="button" type="submit" name="ajouter_langue">Ajouter la langue</button>
         </form>  
+
+        </div>
     
     <!-- changement de couleur -->
-
+    <div class="form">
     <label for="colorPicker">Choisir une couleur pour le fond :</label>
 <input type="color" id="colorPicker">
 
@@ -398,7 +431,9 @@ if (isset($_GET["logout"])) {
 <input type="color" id="titleColorPicker">
 
 <label for="textColorPicker">Choisir une couleur pour le texte :</label>
-<input type="color" id="textColorPicker">          
+<input type="color" id="textColorPicker">  
+
+</div>
     </section>
 
 

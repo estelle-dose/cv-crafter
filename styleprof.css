@@ -10,7 +10,6 @@ body{
     background-image: url(css/backgroundpc.jpg);
     background-size: cover;
     background-position: center;
-    color: #ffffff;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -207,9 +206,17 @@ p{
     gap: 6px;
     max-width: 395px;
     background-color: #fff;
-    padding: 20px;
+    padding: 5px;
     border-radius: 20px;
     position: relative;
+  }
+
+  .formdeco {
+    margin-left: 15px;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 5px;
+    border-radius: 20px;
   }
 
   .form .img img{
@@ -228,39 +235,8 @@ p{
     border-radius: 50%;
     overflow: hidden;
   }
+
   
-  .profil {
-    font-size: 28px;
-    color: royalblue;
-    font-weight: 600;
-    letter-spacing: -1px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    padding-left: 30px;
-  }
-  
-  .profil::before,.profil::after {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    border-radius: 50%;
-    left: 0px;
-    background-color: royalblue;
-  }
-  
-  .profil::before {
-    width: 18px;
-    height: 18px;
-    background-color: royalblue;
-  }
-  
-  .profil::after {
-    width: 18px;
-    height: 18px;
-    animation: pulse 1s linear infinite;
-  }
   
   .message, .signin {
     color: rgba(88, 87, 87, 0.822);
@@ -284,6 +260,17 @@ p{
     width: 100%;
     gap: 6px;
   }
+
+  /* Ajoutez de l'espace entre les champs Login, Prenom et Nom */
+.form .flex .input-field {
+    margin-bottom: 10px; /* Ajustez la valeur selon vos préférences */
+}
+
+
+.form .form-fields {
+    flex: 1; /* Permet au bloc des champs de prendre tout l'espace disponible */
+    gap: 6px;
+}
   
   .form label {
     position: relative;
@@ -291,7 +278,7 @@ p{
   
   .form label .input {
     width: 100%;
-    padding: 10px 10px 10px 10px;
+    padding: 20px 10px 10px 10px;
     outline: 0;
     border: 1px solid rgba(105, 105, 105, 0.397);
     border-radius: 10px;
@@ -319,8 +306,18 @@ p{
   }
   
   .form label .input:valid + span {
-    color: green;
+    color: #003147;
   }
+
+  .login-label {
+    top: 15px; /* Ajustez cette valeur pour aligner le span avec les autres champs */
+}
+
+.photo{
+    color: #000;
+}
+
+
 
 a{
     text-decoration: none;
@@ -395,11 +392,6 @@ form#langue-form button.button{
 
   h2 {
     cursor: pointer;
-    transition: transform 0.2s;
-}
-
-h2:hover {
-    transform: scale(1.1);
 }
 
 h1{
