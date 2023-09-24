@@ -20,7 +20,7 @@ try {
 
 
 
-    // langue
+// langue
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // ...
@@ -40,7 +40,7 @@ try {
             header("Location: profil.php");
             exit;
         }
-        }
+}
     
 
     // expérience
@@ -92,12 +92,12 @@ try {
                 // Récupérez les données du formulaire de compétence
                 $nom_competence = $_POST["nom_competence"];
                 $niveau_competence = $_POST["niveau_competence"]; // Récupérez la valeur sélectionnée
-        
+            
                 // Insérez les données dans la table "competence"
                 $insertQuery = "INSERT INTO competence (utilisateurs_id, nom, niveau) VALUES (?, ?, ?)";
                 $insertStmt = $conn->prepare($insertQuery);
                 $insertStmt->execute([$_SESSION["id"], $nom_competence, $niveau_competence]);
-        
+            
                 // Redirigez l'utilisateur vers la page "profil.php" après l'ajout
                 header("Location: profil.php");
                 exit;
@@ -111,16 +111,16 @@ try {
             if (isset($_POST["ajouter_interet"])) {
                 // Récupérez les données du formulaire d'intérêt
                 $nom_interet = $_POST["nom_interet"];
-        
+            
                 // Insérez les données dans la table "interet"
                 $insertQuery = "INSERT INTO interet (utilisateurs_id, nom) VALUES (?, ?)";
                 $insertStmt = $conn->prepare($insertQuery);
                 $insertStmt->execute([$_SESSION["id"], $nom_interet]);
-        
+            
                 // Redirigez l'utilisateur vers la page "profil.php" après l'ajout
                 header("Location: profil.php");
                 exit;
-            }
+            }        
         }        
         
         // utilisateur
@@ -164,6 +164,20 @@ try {
             $updateStmt = $conn->prepare($updateQuery);
             $updateStmt->execute([$newLogin, $newPrenom, $newNom, $newMail, $newphone, $newpostal, $newville, $hashedPassword, $_SESSION["login"]]);
 
+                   // Vérifie si le fichier a été uploadé sans erreur.
+            $allowed = array("jpg" => "image/jpg", "jpeg" => "image/jpeg", "gif" => "image/gif", "png" => "image/png");
+            $filename = $_FILES["photo"]["name"];
+            $filetype = $_FILES["photo"]["type"];
+            $filesize = $_FILES["photo"]["size"];
+
+            // Vérifie l'extension du fichier
+            $ext = pathinfo($filename, PATHINFO_EXTENSION);
+            if (!array_key_exists($ext, $allowed)) die("Erreur : Veuillez sélectionner un format de fichier valide.");
+
+            // Vérifie la taille du fichier - 5Mo maximum
+            $maxsize = 5 * 1024 * 1024;
+            if ($filesize > $maxsize) die("Error: La taille du fichier est supérieure à la limite autorisée.");
+
             // Vérifier si un nouveau fichier image a été téléchargé
             if ($_FILES["photo"]["error"] === UPLOAD_ERR_OK) {
                 // Un nouveau fichier image a été téléchargé
@@ -205,20 +219,25 @@ if (isset($_GET["logout"])) {
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8">
     <title>Profil</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" 
     integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" 
     crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link id="style" rel="stylesheet" type="text/css" href="styleprof.css">
-    <script defer src="script.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant&display=swap');
-    </style>
+  <link id="style" rel="stylesheet" type="text/css" href="styleprof.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <script defer src="script.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Assistant&display=swap');
+  </style>
 </head>
 <body class="bodyprof">
     <section class="modif">
     <div class="form">
-    <form method="POST" class="form" action="<?php echo $_SERVER["PHP_SELF"]; ?>" enctype="multipart/form-data">
+    <form method="POST" class="forma" action="<?php echo $_SERVER["PHP_SELF"]; ?>" enctype="multipart/form-data">
 
     <div class="flex">
             <div class="img">
@@ -281,7 +300,7 @@ if (isset($_GET["logout"])) {
 
         <!-- Allow the user to upload a new photo -->
         <div class="flex">
-            <label class="photo" for="fileUpload">Photo de profil:</label>
+        <h3 class="title" class="photo" for="fileUpload">Photo de profil:</h3>
             <!-- Cachez l'élément input de type file -->
             <input type="file" id="fileUpload" name="photo" style="display: none;">
 
@@ -306,105 +325,152 @@ if (isset($_GET["logout"])) {
     </div>
 
         <!-- expérience -->
-
         <div class="form">
-        <h2 id="experience-link">Ajouter une expérience +</h2>
-        <form id="experience-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+        <h3 class="title" id="experience-link">Ajouter une expérience +</h3>
+        <form class="forma" id="experience-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+        <div class="form-ex">
             <label>
                 <input class="input" type="text" id="poste" name="poste" required>
                 <span>Poste</span>
             </label>
-
+        </div>
+        <div class="form-ex">
             <label>
                 <input class="input" type="text" id="employeur" name="employeur" required>
                 <span>Employeur</span>
             </label>
-
+        </div>
+        <div class="form-ex">
             <label>
                 <input class="input" type="text" id="ville_experience" name="ville_experience" required>
                 <span>Ville</span>
             </label>
-            
-        <div class="flex">
-            <label>
-                <input class="input" type="date" id="date_start_experience" name="date_start_experience" required>
-                <span>Date de début</span>
-            </label>
-
-            <label>
-                <input class="input" type="date" id="date_end_experience" name="date_end_experience" required>
-                <span>Date de fin</span>
-            </label>
         </div>
+        <div class="form-ex">
+            <div class="flex">
+                <label>
+                    <input class="input" type="date" id="date_start_experience" name="date_start_experience" required>
+                    <span>Date de début</span>
+                </label>
 
+                <label>
+                    <input class="input" type="date" id="date_end_experience" name="date_end_experience" required>
+                    <span>Date de fin</span>
+                </label>
+            </div>
+        </div>
+        <div class="form-ex">
             <label>
                 <textarea class="input" id="description_experience" name="description_experience" rows="4" required></textarea>
                 <span>Description</span>
             </label>
-
+        </div>
+        
             <button class="button" type="submit" name="ajouter_experience">Ajouter l'expérience</button>
         </form>
 
         <!-- Formation -->
-        <h2 id="formation-link">Ajouter une formation +</h2>
-        <form id="formation-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
-            <label for="nom_formation">Nom de la formation:</label>
-            <input type="text" id="nom_formation" name="nom_formation" required><br>
+        <h3 class="title" id="formation-link">Ajouter une formation +</h3>
+        <form class="forma" id="formation-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+        <div class="form-ex">
+            <label>
+            <input class="input" type="text" id="nom_formation" name="nom_formation" required>
+            <span>Formation</span>
+            </label>
+        </div>
 
-            <label for="nom_etablissement">Nom de l'établissement:</label>
-            <input type="text" id="nom_etablissement" name="nom_etablissement" required><br>
+        <div class="form-ex">
+            <label>
+            <input class="input" type="text" id="nom_etablissement" name="nom_etablissement" required>
+            <span>Etablissement</span>
+            </label>
+        </div>
 
-            <label for="ville_formation">Ville:</label>
-            <input type="text" id="ville_formation" name="ville_formation" required><br>
+        <div class="form-ex">
+            <label>
+            <input class="input" type="text" id="ville_formation" name="ville_formation" required>
+            <span>Ville</span>
+            </label>
+        </div>
 
-            <label for="date_start_formation">Date de début:</label>
-            <input type="date" id="date_start_formation" name="date_start_formation" required><br>
+        <div class="form-ex">
+            <div class="flex">
+                <label>
+                <input class="input" type="date" id="date_start_formation" name="date_start_formation" required>
+                <span>Date de début</span>
+                </label>
 
-            <label for="date_end_formation">Date de fin:</label>
-            <input type="date" id="date_end_formation" name="date_end_formation" required><br>
+                <label>
+                <input class="input" type="date" id="date_end_formation" name="date_end_formation" required>
+                <span>Date de fin</span>
+                </label>
+            </div>
+        </div>
 
-            <label for="description_formation">Description:</label>
-            <textarea id="description_formation" name="description_formation" rows="4" required></textarea><br>
+        <div class="form-ex">
+            <label>
+            <textarea class="input" id="description_formation" name="description_formation" rows="4" required></textarea>
+            <span>Description</span>
+            </label>
+        </div>
 
             <button class="button" type="submit" name="ajouter_formation">Ajouter la formation</button>
         </form>
 
         <!-- Competence -->
 
-        <h2 id="competence-link">Ajouter une compétence +</h2>
-        <form id="competence-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
-            <label for="nom_competence">Nom de la compétence:</label>
-            <input type="text" id="nom_competence" name="nom_competence" required><br>
+        <h3 class="title" id="competence-link">Ajouter une compétence +</h3>
+        <form class="forma" id="competence-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
 
-            <label for="niveau_competence">Niveau de la compétence:</label>
-            <select id="niveau_competence" name="niveau_competence" required>
-                <option value="Débutant">Débutant</option>
-                <option value="Intermédiaire">Intermédiaire</option>
-                <option value="Avancé">Avancé</option>
-                <option value="Expert">Expert</option>
-            </select><br>
+        <div class="form-ex">
+            <label>
+            <input class="input" type="text" id="nom_competence" name="nom_competence" required>
+            <span>Compétence</span>
+            </label>
+        </div>
+
+        <div class="form-ex">
+            <label>
+                <select class="input" id="niveau_competence" name="niveau_competence" required>
+                    <option value="Débutant">Débutant</option>
+                    <option value="Intermédiaire">Intermédiaire</option>
+                    <option value="Avancé">Avancé</option>
+                    <option value="Expert">Expert</option>
+                </select>
+                <span>Niveau</span>
+            </label>
+        </div>
 
             <button class="button" type="submit" name="ajouter_competence">Ajouter la compétence</button>
         </form>
 
         <!-- Interet -->
 
-        <h2 id="interet-link">Ajouter un intérêt +</h2>
-        <form id="interet-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
-            <label for="nom_interet">Nom de l'intérêt :</label>
-            <input type="text" id="nom_interet" name="nom_interet" required><br>
+        <h3 class="title" id="interet-link">Ajouter un intérêt +</h3>
+        <form class="forma" id="interet-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+        <div class="form-ex">
+            <label>
+                <input class="input" type="text" id="nom_interet" name="nom_interet" required>
+                <span>Intérêt</span>
+            </label>
+        </div>
 
             <button class="button" type="submit" name="ajouter_interet">Ajouter l'intérêt</button>
         </form>
         <!-- Langue -->
 
-        <h2 id="langue-link">Ajouter une langue +</h2>
-        <form id="langue-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
-            <label for="nom_langue">Langue:</label>
-            <input type="text" id="nom_langue" name="nom_langue" required><br>
+        <h3 class="title" id="langue-link">Ajouter une langue +</h3>
+        <form class="forma" id="langue-form" style="display: none;" method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+        <div class="form-ex">
+            <label>
+            <input class="input" type="text" id="nom_langue" name="nom_langue" required>
+            <span>Langue</span>
+            </label>
+        </div>
 
-            <label for="niveau_langue">Niveau de la langue:</label>
-            <select id="niveau_langue" name="niveau_langue" required>
+        <div class="form-ex">
+            <label>
+            <select class="input" id="niveau_langue" name="niveau_langue" required>
                 <option value="Débutant">A0 : Débutant</option>
                 <option value="Elémentaire">A1 : Elémentaire</option>
                 <option value="Pré-intermédiaire">A2 : Pré-intermédiaire</option>
@@ -412,36 +478,42 @@ if (isset($_GET["logout"])) {
                 <option value="Intermédiaire supérieur">B2 : Intermédiaire supérieur</option>
                 <option value="Avancé">C1 : Avancé</option>
                 <option value="Courant">C2 : Courant</option>
-            </select><br>
+            </select>
+            <span>Niveau</span>
+            </label>
+        </div>
 
             <button class="button" type="submit" name="ajouter_langue">Ajouter la langue</button>
-        </form>  
-
-        </div>
+        </form>
     
+    </div>
+
     <!-- changement de couleur -->
+
     <div class="form">
-    <label for="colorPicker">Choisir une couleur pour le fond :</label>
-<input type="color" id="colorPicker">
 
-<label for="iconColorPicker">Choisir une couleur pour les icônes :</label>
-<input type="color" id="iconColorPicker">
+    <h3 class="title" for="colorPicker">Choisir une couleur pour le fond :</h3>
+    <input type="color" id="colorPicker">
+    
+    <h3 class="title" for="iconColorPicker">Choisir une couleur pour les icônes :</h3>
+    <input type="color" id="iconColorPicker">
 
-<label for="titleColorPicker">Choisir une couleur pour les titres :</label>
-<input type="color" id="titleColorPicker">
+    <h3 class="title" for="titleColorPicker">Choisir une couleur pour les titres :</h3>
+    <input type="color" id="titleColorPicker">
 
-<label for="textColorPicker">Choisir une couleur pour le texte :</label>
-<input type="color" id="textColorPicker">  
+    <h3 class="title" for="textColorPicker">Choisir une couleur pour le texte :</h3>
+    <input type="color" id="textColorPicker">          
+    
+
+<button class="button" type="button" onclick="convertHTMLtoPDF()">Télécharge ton CV en PDF</button>
+ 
+</section>
 
 </div>
-    </section>
-
-
-
 
   <!-- CV -->
 
-    <section class="container">
+    <section class="container" id="divID">
 
         <div class="left_side">
             <div class="profileText">
@@ -490,8 +562,8 @@ if (isset($_GET["logout"])) {
 
             <div class="contactInfo language">
                 <h3 class="title">Langues</h3>
-                <ul>
-                    <?php
+        <ul>
+        <?php
                         // Sélectionnez les langues de l'utilisateur connecté depuis la base de données
                         $languesQuery = "SELECT nom, niveau FROM langue WHERE utilisateurs_id = ?";
                         $languesStmt = $conn->prepare($languesQuery);
@@ -509,61 +581,63 @@ if (isset($_GET["logout"])) {
         
         <div class="right_side">
             <div class="about">
-                <h2 class="title2">Expérience</h2>
-                    <?php
-                    // Sélectionnez les expériences de l'utilisateur connecté depuis la base de données
-                    $experiencesQuery = "SELECT id, poste, employeur, ville, date_start, date_end, description FROM experience WHERE utilisateurs_id = ?";
-                    $experiencesStmt = $conn->prepare($experiencesQuery);
-                    $experiencesStmt->execute([$_SESSION["id"]]);
-                    $experiences = $experiencesStmt->fetchAll(PDO::FETCH_ASSOC);
+                <h3 class="title2">Expérience</h3>
+            <?php
+            // Sélectionnez les expériences de l'utilisateur connecté depuis la base de données
+            $experiencesQuery = "SELECT id, poste, employeur, ville, date_start, date_end, description FROM experience WHERE utilisateurs_id = ?";
+            $experiencesStmt = $conn->prepare($experiencesQuery);
+            $experiencesStmt->execute([$_SESSION["id"]]);
+            $experiences = $experiencesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    foreach ($experiences as $experience) {
-                        echo "<div class='box'><div class='year_company'><h5>" . $experience["date_start"] . "/" . $experience["date_end"] . "</h5>
+            foreach ($experiences as $experience) {
+                echo "<div class='box'><div class='year_company'><h5>" . $experience["date_start"] . "/" . $experience["date_end"] . "</h5>
                         <h5>" . $experience["employeur"] . "</h5>
                         <h5>". $experience["ville"] ."</h5></div>
-                        <div class='text'><h4>" . $experience["poste"] . "</h4>
+                        <div class='text'><h4 class='text'>" . $experience["poste"] . "</h4>
                         <p>" . $experience["description"] . "</p></div></div>";
-                    }
-                    ?>
-            </div>
-
-            <div class="about">
-                <h2 class="title2">Formations</h2>
-                <?php
-                    // Sélectionnez les formations de l'utilisateur connecté depuis la base de données
-                    $formationsQuery = "SELECT nom_formation, nom_etablissement, ville, date_start, date_end, description FROM formation WHERE utilisateurs_id = ?";
-                    $formationsStmt = $conn->prepare($formationsQuery);
-                    $formationsStmt->execute([$_SESSION["id"]]);
-                    $formations = $formationsStmt->fetchAll(PDO::FETCH_ASSOC);
-
-                    foreach ($formations as $formation) {
-                        echo "<div class='box'><div class='year_company'><h5>" . $formation["date_start"] . "/" . $formation["date_end"] . "</h5>
-                        <h5>" . $formation["ville"] . "</h5></div>
-                        <div class='text'><h4>" . $formation["nom_formation"] . "</h4>
-                        <h6>" . $formation["nom_etablissement"] . "</h6>
-                        <p>" . $formation["description"] . "</p></div></div>";
-                    }
-                    ?>
-            </div>
-
-            <div class="about skills">
-                <h2 class="title2">Compétences</h2>
-                <?php
-                    // Sélectionnez les compétences de l'utilisateur connecté depuis la base de données
-                    $competencesQuery = "SELECT nom, niveau FROM competence WHERE utilisateurs_id = ?";
-                    $competencesStmt = $conn->prepare($competencesQuery);
-                    $competencesStmt->execute([$_SESSION["id"]]);
-                    $competences = $competencesStmt->fetchAll(PDO::FETCH_ASSOC);
-
-                    foreach ($competences as $competence) {
-                        echo "<div class='box'><h4>" . $competence["nom"] . "</h4>
-                        <p>" . $competence["niveau"] . "</p></div>";
-                    }
-                    ?>
-            </div>
+            }
+            ?>
         </div>
-        
-        <script>
+
+        <div class="about">
+                <h3 class="title2">Formations</h3>
+            <?php
+            // Sélectionnez les formations de l'utilisateur connecté depuis la base de données
+            $formationsQuery = "SELECT nom_formation, nom_etablissement, ville, date_start, date_end, description FROM formation WHERE utilisateurs_id = ?";
+            $formationsStmt = $conn->prepare($formationsQuery);
+            $formationsStmt->execute([$_SESSION["id"]]);
+            $formations = $formationsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($formations as $formation) {
+                echo "<div class='box'><div class='year_company'><h5>" . $formation["date_start"] . "/" . $formation["date_end"] . "</h5>
+                        <h5>" . $formation["ville"] . "</h5></div>
+                        <div class='text'><h4 class='text'>" . $formation["nom_formation"] . "</h4>
+                        <h6 class='text'>" . $formation["nom_etablissement"] . "</h6>
+                        <p>" . $formation["description"] . "</p></div></div>";
+            }
+            ?>
+        </div>
+
+        <div class="about skills">
+                <h3 class="title2">Compétences</h3>
+            <?php
+            // Sélectionnez les compétences de l'utilisateur connecté depuis la base de données
+            $competencesQuery = "SELECT nom, niveau FROM competence WHERE utilisateurs_id = ?";
+            $competencesStmt = $conn->prepare($competencesQuery);
+            $competencesStmt->execute([$_SESSION["id"]]);
+            $competences = $competencesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($competences as $competence) {
+                echo "<div class='box'><h4 class='text'>" . $competence["nom"] . "</h4>
+                        <p>" . $competence["niveau"] . "</p></div>";
+            }
+            ?>
+        </div>
+        </div>
+    </section>
+
+
+    <script>
 function toggleUpdateForm(experienceId) {
     var formId = "updateForm" + experienceId;
     var form = document.getElementById(formId);
@@ -602,6 +676,7 @@ iconColorPicker.addEventListener("input", function () {
     });
 });
 
+
 // Sélectionnez l'élément input de type "color" pour les titres "title2"
 const titleColorPicker = document.getElementById("titleColorPicker");
 
@@ -632,11 +707,24 @@ textColorPicker.addEventListener("input", function () {
     textElements.forEach(function (textElement) {
         textElement.style.color = selectedTextColor;
     });
-});
+});     
+    </script>
+    	<script type="text/javascript">
+		function convertHTMLtoPDF() {
+			const { jsPDF } = window.jspdf;
 
+			let doc = new jsPDF('l', 'mm', [1440, 1452]);
+			let pdfjs = document.querySelector('#divID');
 
-
-</script>
+			doc.html(pdfjs, {
+				callback: function(doc) {
+					doc.save("newpdf.pdf");
+				},
+				x: 12,
+				y: 12
+			});			
+		}		
+	</script>
 
 </body>
 </html>

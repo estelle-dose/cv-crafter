@@ -211,12 +211,19 @@ p{
     position: relative;
   }
 
+  .forma {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 5px;
+  }
+
   .formdeco {
-    margin-left: 15px;
     display: flex;
     flex-direction: column;
     padding-bottom: 5px;
-    border-radius: 20px;
+    padding-left: 5px;
+    padding-right: 5px;
   }
 
   .form .img img{
@@ -235,25 +242,6 @@ p{
     border-radius: 50%;
     overflow: hidden;
   }
-
-  
-  
-  .message, .signin {
-    color: rgba(88, 87, 87, 0.822);
-    font-size: 14px;
-  }
-  
-  .signin {
-    text-align: center;
-  }
-  
-  .signin a {
-    color: royalblue;
-  }
-  
-  .signin a:hover {
-    text-decoration: underline royalblue;
-  }
   
   .flex {
     display: flex;
@@ -262,19 +250,18 @@ p{
   }
 
   /* Ajoutez de l'espace entre les champs Login, Prenom et Nom */
-.form .flex .input-field {
-    margin-bottom: 10px; /* Ajustez la valeur selon vos préférences */
-}
-
-
-.form .form-fields {
-    flex: 1; /* Permet au bloc des champs de prendre tout l'espace disponible */
-    gap: 6px;
-}
+    .form .flex .input-field {
+        margin-bottom: 10px; /* Ajustez la valeur selon vos préférences */
+    }
+    
+    .form .form-fields {
+        flex: 1; /* Permet au bloc des champs de prendre tout l'espace disponible */
+        gap: 6px;
+    }
   
-  .form label {
-    position: relative;
-  }
+    .form label {
+        position: relative;
+    }
   
   .form label .input {
     width: 100%;
@@ -287,59 +274,24 @@ p{
   .form label .input + span {
     position: absolute;
     left: 10px;
-    top: 15px;
-    color: grey;
-    font-size: 0.9em;
-    cursor: text;
-    transition: 0.3s ease;
-  }
-  
-  .form label .input:placeholder-shown + span {
-    top: 15px;
-    font-size: 0.9em;
-  }
-  
-  .form label .input:focus + span,.form label .input:valid + span {
-    top: 0px;
+    text-transform: uppercase;
     font-size: 0.7em;
     font-weight: 600;
-  }
-  
-  .form label .input:valid + span {
     color: #003147;
   }
 
-  .login-label {
-    top: 15px; /* Ajustez cette valeur pour aligner le span avec les autres champs */
+  .form-ex {
+    margin-bottom: 10px; /* Ajustez la valeur selon vos préférences pour ajouter de l'espace entre les champs */
 }
 
-.photo{
-    color: #000;
-}
-
-
-
-a{
-    text-decoration: none;
-    color: #ffffff;
-    padding: 5px;
-}
-
-form#experience-form button.button{
-    padding: 5px 10px;
-}
-form#formation-form button.button{
-    padding: 5px 10px;
-}
-form#competence-form button.button{
-    padding: 5px 10px;
-}
-form#interet-form button.button{
-    padding: 5px 10px;
-}
-form#langue-form button.button{
-    padding: 5px 10px;
-}
+  .form .title {
+    color: #003147;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
 
 .name{
     font-size: 3em;
@@ -347,14 +299,33 @@ form#langue-form button.button{
     margin-top: -1%;
 }
 
+/* Styles pour les champs de couleur */
+input[type="color"] {
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Style lorsque le champ de couleur est survolé */
+input[type="color"]:hover {
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Style lorsque le champ de couleur est actif (cliqué) */
+input[type="color"]:active {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
 
 .button {
+    text-transform: uppercase;
     cursor: pointer;
     position: relative;
     padding: 10px 24px;
-    font-size: 18px;
-    color: #fff;
-    border: 2px solid rgb(193, 163, 98);
+    font-size: 16px;
+    color: #003147;
+    border: 2px solid #003147;
     border-radius: 34px;
     background-color: rgba(0, 0, 0, 0.199);
     font-weight: 600;
@@ -372,7 +343,7 @@ form#langue-form button.button{
     border-radius: inherit;
     scale: 0;
     z-index: -1;
-    background-color: rgb(193, 163, 98);
+    background-color: #003147;
     transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
   }
   
@@ -382,72 +353,10 @@ form#langue-form button.button{
   
   .button:hover {
     color: #fff;
-    scale: 1.1;
-    box-shadow: 0 0px 20px rgba(193, 163, 98,0.4);
+    scale: 1.02;
+    box-shadow: 0 0px 20px rgba(0, 49, 71,0.4);
   }
   
   .button:active {
     scale: 1;
   }
-
-  h2 {
-    cursor: pointer;
-}
-
-h1{
-    font-size: 4em;
-}
-input[type="submit"] {
-    font-size: 18px;
-    color: #fff;
-    text-decoration: none;
-    border: none;
-    background-color: transparent;
-    text-shadow: 0 0 6px black;
-}
-
-.login-box {
-    margin-top: 65%;
-    margin-left: 30%;
-    margin-bottom: -70%;
-    width: 400px;
-    padding: 40px;
-    transform: translate(-50%, -50%);
-}
-  
-.login-box .user-box {
-    position: relative;
-}
-  
-.login-box .user-box input {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    color: #fff;
-    margin-bottom: 30px;
-    border: none;
-    border-bottom: 1px solid #fff;
-    outline: none;
-    background: transparent;
-}
-  
-.login-box .user-box label {
-    position: absolute;
-    top: 0;
-    left: 10px;
-    padding: 10px 0;
-    font-size: 20px;
-    color: #fff;
-    pointer-events: none;
-    transition: .5s;
-}
-  
-.login-box .user-box input:focus ~ label,
-.login-box .user-box input:valid ~ label {
-    top: -20px;
-    left: 10px;
-    color: #ffffff;
-    font-size: 12px;
-}
-
-  

@@ -53,7 +53,3 @@
                 langueForm.style.display = 'none';
             }
         });
-
-
-
-

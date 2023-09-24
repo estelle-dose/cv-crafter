@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <form method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
         <h1>Inscription</h1>
-
+        <br>
         <div  class="login-box">
             <div class="user-box">
                 <input type="text" id="login" name="login" required>
